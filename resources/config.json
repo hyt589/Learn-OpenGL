@@ -1,0 +1,11 @@
+{
+    "fragmentShaderPath": "resources/shaders/shader.fs",
+    "hello": "world",
+    "vertexShaderPath": "resources/shaders/shader.vs",
+    "texturePaths": [
+        "resources/images/container.jpg",
+        "resources/images/awesomeface.jpg"
+    ],
+    "windowWidth": 1920,
+    "windowHeight": 1080
+}
