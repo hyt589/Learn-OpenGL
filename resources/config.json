@@ -6,6 +6,6 @@
         "resources/images/container.jpg",
         "resources/images/awesomeface.jpg"
     ],
-    "windowWidth": 1920,
-    "windowHeight": 1080
+    "windowWidth": 1000,
+    "windowHeight": 1000
 }

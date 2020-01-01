@@ -7,6 +7,9 @@
 #include <list>
 #include "stb_image.h"
 #include "image.cpp"
+#include <glm-0.9.9.6/glm/glm.hpp>
+#include <glm-0.9.9.6/glm/gtc/matrix_transform.hpp>
+#include <glm-0.9.9.6/glm/gtc/type_ptr.hpp>
 
 using JSON = nlohmann::json;
 
@@ -174,7 +177,7 @@ int main(int, char **)
     TextureCreator textureCreator(program_id);
     unsigned int texture_0 = textureCreator.createTexture(TEXTURE_PATHS[0]);
     unsigned int texture_1 = textureCreator.createTexture(TEXTURE_PATHS[1]);
-    
+
 
     // std::cout << typeid(config["texturePaths"]).name() << std::endl;
     //render loop
@@ -182,11 +185,18 @@ int main(int, char **)
     {
         processInput(window);
 
-        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
         // int containerTex = glGetUniformLocation(program_id, "containerTexture");
-        
+        glm::mat4 transform = glm::mat4(1.0f);
+        transform = glm::scale(transform, glm::vec3(0.5f, 0.5f, 0.5f));
+        transform = glm::rotate(transform, glm::radians((float)glfwGetTime() * 50), glm::vec3(0.0f, 0.0f, 1.0f));
+        transform = glm::translate(transform, glm::vec3(0.5f, -0.5f, 0.0f));
+
+        unsigned int uniform_transform = glGetUniformLocation(program_id, "transform");
+        glUniformMatrix4fv(uniform_transform, 1, GL_FALSE, glm::value_ptr(transform));
+
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture_0);
         glActiveTexture(GL_TEXTURE1);
@@ -198,6 +208,15 @@ int main(int, char **)
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         // glDrawArrays(GL_TRIANGLES, 0, 3);
         // glBindTexture(GL_TEXTURE_2D, texture_id);
+        glDrawElements(GL_TRIANGLES, sizeof(indices), GL_UNSIGNED_INT, 0);
+
+        transform = glm::mat4(1.0f);
+        transform = glm::scale(transform, glm::vec3(0.5f, 0.5f, 0.5f));
+        transform = glm::translate(transform, glm::vec3(-0.5f, 0.5f, 0.0f));
+        transform = glm::rotate(transform, glm::radians((float)glfwGetTime() * 25), glm::vec3(0.0f, 0.0f, 1.0f));
+        // uniform_transform = glGetUniformLocation(program_id, "transform");
+        glUniformMatrix4fv(uniform_transform, 1, GL_FALSE, glm::value_ptr(transform));
+        // glUseProgram(program_id);
         glDrawElements(GL_TRIANGLES, sizeof(indices), GL_UNSIGNED_INT, 0);
 
         glfwSwapBuffers(window);
