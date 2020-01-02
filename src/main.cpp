@@ -136,13 +136,56 @@ int main(int, char **)
     shaders.push_front(fragment_shader);
     unsigned int program_id = createProgram(shaders);
 
+    // float vertices[] = {
+    //     // positions          // colors           // texture coords
+    //     0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,   // top right
+    //     0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,  // bottom right
+    //     -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, // bottom left
+    //     -0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f   // top left
+    // };
+
     float vertices[] = {
-        // positions          // colors           // texture coords
-        0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,   // top right
-        0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,  // bottom right
-        -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, // bottom left
-        -0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f   // top left
-    };
+        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+        0.5f, -0.5f, -0.5f, 1.0f, 0.0f,
+        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+
+        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+        0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
+        0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
+        0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
+        -0.5f, 0.5f, 0.5f, 0.0f, 1.0f,
+        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+
+        -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+        -0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+        -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+
+        0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+        0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+        0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+        0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+        0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+
+        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+        0.5f, -0.5f, -0.5f, 1.0f, 1.0f,
+        0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
+        0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
+        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+
+        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
+        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+        0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+        0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+        -0.5f, 0.5f, 0.5f, 0.0f, 0.0f,
+        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f};
 
     unsigned int indices[] = {
         // note that we start from 0!
@@ -165,12 +208,10 @@ int main(int, char **)
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(3 * sizeof(float)));
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(6 * sizeof(float)));
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)(3 * sizeof(float)));
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
-    glEnableVertexAttribArray(2);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0); //safe to unbind after vertexAttribPointer is set
 
@@ -178,6 +219,17 @@ int main(int, char **)
     unsigned int texture_0 = textureCreator.createTexture(TEXTURE_PATHS[0]);
     unsigned int texture_1 = textureCreator.createTexture(TEXTURE_PATHS[1]);
 
+    glm::vec3 cubePositions[] = {
+        glm::vec3(0.0f, 0.0f, 0.0f),
+        glm::vec3(2.0f, 5.0f, -15.0f),
+        glm::vec3(-1.5f, -2.2f, -2.5f),
+        glm::vec3(-3.8f, -2.0f, -12.3f),
+        glm::vec3(2.4f, -0.4f, -3.5f),
+        glm::vec3(-1.7f, 3.0f, -7.5f),
+        glm::vec3(1.3f, -2.0f, -2.5f),
+        glm::vec3(1.5f, 2.0f, -2.5f),
+        glm::vec3(1.5f, 0.2f, -1.5f),
+        glm::vec3(-1.3f, 1.0f, -1.5f)};
 
     // std::cout << typeid(config["texturePaths"]).name() << std::endl;
     //render loop
@@ -185,39 +237,48 @@ int main(int, char **)
     {
         processInput(window);
 
-        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glEnable(GL_DEPTH_TEST);
+        glClearColor(0.5f, 0.5f, 0.5f, 0.5f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // int containerTex = glGetUniformLocation(program_id, "containerTexture");
-        glm::mat4 transform = glm::mat4(1.0f);
-        transform = glm::scale(transform, glm::vec3(0.5f, 0.5f, 0.5f));
-        transform = glm::rotate(transform, glm::radians((float)glfwGetTime() * 50), glm::vec3(0.0f, 0.0f, 1.0f));
-        transform = glm::translate(transform, glm::vec3(0.5f, -0.5f, 0.0f));
+        // glm::mat4 transform = glm::mat4(1.0f);
+        // transform = glm::scale(transform, glm::vec3(0.5f, 0.5f, 0.5f));
+        // transform = glm::rotate(transform, glm::radians((float)glfwGetTime() * 50), glm::vec3(0.0f, 0.0f, 1.0f));
+        // transform = glm::translate(transform, glm::vec3(0.5f, -0.5f, 0.0f));
 
-        unsigned int uniform_transform = glGetUniformLocation(program_id, "transform");
-        glUniformMatrix4fv(uniform_transform, 1, GL_FALSE, glm::value_ptr(transform));
+        // unsigned int uniform_transform = glGetUniformLocation(program_id, "transform");
+        // glUniformMatrix4fv(uniform_transform, 1, GL_FALSE, glm::value_ptr(transform));
 
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture_0);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texture_1);
+        glm::mat4 model = glm::rotate(glm::mat4(1.0f), (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
+        glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -2.0f));
+        glm::mat4 projection = glm::perspective(glm::radians((float)config["fov"]), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 100.0f);
+
+        unsigned int uniform_model = glGetUniformLocation(program_id, "model");
+        unsigned int uniform_view = glGetUniformLocation(program_id, "view");
+        unsigned int uniform_projection = glGetUniformLocation(program_id, "projection");
+
+        glUniformMatrix4fv(uniform_model, 1, GL_FALSE, glm::value_ptr(model));
+        glUniformMatrix4fv(uniform_view, 1, GL_FALSE, glm::value_ptr(view));
+        glUniformMatrix4fv(uniform_projection, 1, GL_FALSE, glm::value_ptr(projection));
 
         glUseProgram(program_id);
         // glUniform4f(u_color, r, g, b, 1.0f);
         glBindVertexArray(vao);
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        // glDrawArrays(GL_TRIANGLES, 0, 3);
-        // glBindTexture(GL_TEXTURE_2D, texture_id);
-        glDrawElements(GL_TRIANGLES, sizeof(indices), GL_UNSIGNED_INT, 0);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        for (unsigned int i = 0; i < 10; i++)
+        {
+            model = glm::mat4(1.0f);
+            model = glm::translate(model, cubePositions[i]);
+            float angle = 20.0f * i + 20;
+            model = glm::rotate(model, glm::radians(angle) * (float)glfwGetTime(), glm::vec3(1.0f, 0.3f, 0.5f));
+            glUniformMatrix4fv(uniform_model, 1, GL_FALSE, glm::value_ptr(model));
 
-        transform = glm::mat4(1.0f);
-        transform = glm::scale(transform, glm::vec3(0.5f, 0.5f, 0.5f));
-        transform = glm::translate(transform, glm::vec3(-0.5f, 0.5f, 0.0f));
-        transform = glm::rotate(transform, glm::radians((float)glfwGetTime() * 25), glm::vec3(0.0f, 0.0f, 1.0f));
-        // uniform_transform = glGetUniformLocation(program_id, "transform");
-        glUniformMatrix4fv(uniform_transform, 1, GL_FALSE, glm::value_ptr(transform));
-        // glUseProgram(program_id);
-        glDrawElements(GL_TRIANGLES, sizeof(indices), GL_UNSIGNED_INT, 0);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
+        // glDrawArrays(GL_TRIANGLES, 0, 36);
+        // glBindTexture(GL_TEXTURE_2D, texture_id);
+        // glDrawElements(GL_TRIANGLES, sizeof(indices), GL_UNSIGNED_INT, 0);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
