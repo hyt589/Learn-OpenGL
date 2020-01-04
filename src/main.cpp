@@ -10,10 +10,12 @@
 #include <glm-0.9.9.6/glm/glm.hpp>
 #include <glm-0.9.9.6/glm/gtc/matrix_transform.hpp>
 #include <glm-0.9.9.6/glm/gtc/type_ptr.hpp>
+#include <shader.hpp>
+#include <program.hpp>
 
 using JSON = nlohmann::json;
 
-JSON config = loadConfig();
+// JSON config = loadConfig();
 
 #define WINDOW_WIDTH config["windowWidth"]
 #define WINDOW_HEIGHT config["windowHeight"]
@@ -35,66 +37,6 @@ static void processInput(GLFWwindow *window)
     }
 }
 
-static std::string read_file(std::string path)
-{
-    std::string line, text;
-    std::ifstream in(path);
-    while (std::getline(in, line))
-    {
-        text += line + "\n";
-    }
-    return text;
-}
-
-static unsigned int compileShader(int shader_type, std::string source_path)
-{
-    std::string source = read_file(source_path);
-    const char *type = (shader_type == GL_VERTEX_SHADER) ? "VERTEX" : (shader_type == GL_FRAGMENT_SHADER) ? "FRAGMENT" : "UNKNOWN";
-    unsigned int shader_id = glCreateShader(shader_type);
-    const char *src = source.c_str();
-    glShaderSource(shader_id, 1, &src, NULL);
-    glCompileShader(shader_id);
-    int success;
-    glGetShaderiv(shader_id, GL_COMPILE_STATUS, &success);
-    if (!success)
-    {
-        int length;
-        glGetShaderiv(shader_id, GL_INFO_LOG_LENGTH, &length);
-        char *message = (char *)alloca(sizeof(char) * length);
-        glGetShaderInfoLog(shader_id, length, &length, message);
-        std::cout << "[ERROR]::SHADER::" << type << "::COMPILATION_FAILED" << std::endl
-                  << message << std::endl;
-    }
-    // std::cout << "[INFO]::SHADER::SOURCE::" << type << std::endl;
-    // std::cout << src << std::endl;
-
-    return shader_id;
-}
-
-static unsigned int createProgram(std::list<unsigned int> shaders)
-{
-    unsigned int program_id = glCreateProgram();
-    std::list<unsigned int>::iterator iterator;
-    for (iterator = shaders.begin(); iterator != shaders.end(); ++iterator)
-    {
-        glAttachShader(program_id, *iterator);
-    }
-    glLinkProgram(program_id);
-    int success;
-    glGetProgramiv(program_id, GL_LINK_STATUS, &success);
-    if (!success)
-    {
-        int length;
-        glGetProgramiv(program_id, GL_INFO_LOG_LENGTH, &length);
-        char *message = (char *)alloca(sizeof(char) * length);
-        glGetProgramInfoLog(program_id, length, &length, message);
-    }
-    for (iterator = shaders.begin(); iterator != shaders.end(); ++iterator)
-    {
-        glDeleteShader(*iterator);
-    }
-    return program_id;
-}
 
 int main(int, char **)
 {
@@ -129,12 +71,10 @@ int main(int, char **)
     glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-    unsigned int vertex_shader = compileShader(GL_VERTEX_SHADER, VERTEX_SHADER_PATH);
-    unsigned int fragment_shader = compileShader(GL_FRAGMENT_SHADER, FRAGMENT_SHADER_PATH);
-    std::list<unsigned int> shaders;
-    shaders.push_front(vertex_shader);
-    shaders.push_front(fragment_shader);
-    unsigned int program_id = createProgram(shaders);
+    Shader vertexShader(VERTEX_SHADER_PATH, GL_VERTEX_SHADER);
+    Shader fragmentShader(FRAGMENT_SHADER_PATH, GL_FRAGMENT_SHADER);
+    Program program(vertexShader.ID(), fragmentShader.ID());
+    
 
     // float vertices[] = {
     //     // positions          // colors           // texture coords
@@ -187,6 +127,8 @@ int main(int, char **)
         -0.5f, 0.5f, 0.5f, 0.0f, 0.0f,
         -0.5f, 0.5f, -0.5f, 0.0f, 1.0f};
 
+    
+
     unsigned int indices[] = {
         // note that we start from 0!
         0, 1, 3, // first triangle
@@ -215,7 +157,7 @@ int main(int, char **)
 
     glBindBuffer(GL_ARRAY_BUFFER, 0); //safe to unbind after vertexAttribPointer is set
 
-    TextureCreator textureCreator(program_id);
+    TextureCreator textureCreator(program.ID());
     unsigned int texture_0 = textureCreator.createTexture(TEXTURE_PATHS[0]);
     unsigned int texture_1 = textureCreator.createTexture(TEXTURE_PATHS[1]);
 
@@ -241,38 +183,25 @@ int main(int, char **)
         glClearColor(0.5f, 0.5f, 0.5f, 0.5f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // int containerTex = glGetUniformLocation(program_id, "containerTexture");
-        // glm::mat4 transform = glm::mat4(1.0f);
-        // transform = glm::scale(transform, glm::vec3(0.5f, 0.5f, 0.5f));
-        // transform = glm::rotate(transform, glm::radians((float)glfwGetTime() * 50), glm::vec3(0.0f, 0.0f, 1.0f));
-        // transform = glm::translate(transform, glm::vec3(0.5f, -0.5f, 0.0f));
-
-        // unsigned int uniform_transform = glGetUniformLocation(program_id, "transform");
-        // glUniformMatrix4fv(uniform_transform, 1, GL_FALSE, glm::value_ptr(transform));
-
         glm::mat4 model = glm::rotate(glm::mat4(1.0f), (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
         glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -2.0f));
         glm::mat4 projection = glm::perspective(glm::radians((float)config["fov"]), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 100.0f);
 
-        unsigned int uniform_model = glGetUniformLocation(program_id, "model");
-        unsigned int uniform_view = glGetUniformLocation(program_id, "view");
-        unsigned int uniform_projection = glGetUniformLocation(program_id, "projection");
+        program.setUniformMat4("model", model);
+        program.setUniformMat4("view", view);
+        program.setUniformMat4("projection", projection);
 
-        glUniformMatrix4fv(uniform_model, 1, GL_FALSE, glm::value_ptr(model));
-        glUniformMatrix4fv(uniform_view, 1, GL_FALSE, glm::value_ptr(view));
-        glUniformMatrix4fv(uniform_projection, 1, GL_FALSE, glm::value_ptr(projection));
-
-        glUseProgram(program_id);
+        program.Use();
         // glUniform4f(u_color, r, g, b, 1.0f);
         glBindVertexArray(vao);
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         for (unsigned int i = 0; i < 10; i++)
         {
             model = glm::mat4(1.0f);
             model = glm::translate(model, cubePositions[i]);
             float angle = 20.0f * i + 20;
             model = glm::rotate(model, glm::radians(angle) * (float)glfwGetTime(), glm::vec3(1.0f, 0.3f, 0.5f));
-            glUniformMatrix4fv(uniform_model, 1, GL_FALSE, glm::value_ptr(model));
+            program.setUniformMat4("model", model);
 
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }

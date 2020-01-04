@@ -22,3 +22,5 @@ void updateConfig(JSON config){
     std::ofstream out(CONFIG_PATH);
     out << std::setw(4) << config;
 }
+
+JSON config = loadConfig();
