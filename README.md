@@ -10,6 +10,6 @@ To generate a build file:
 ```
 cmake -G '<build options>'
 ```
-Substitute `<build options>` with your system specific build options. On Linux or MacOS, this is `Unix Makefiles`; on Windows platforms you can build with visual studio solutions, e.g. `Visual Studio 15 2017`.
+Substitute `<build options>` with your system specific build options. On Linux or MacOS, this is `Unix Makefiles`, and don't forget to define `CMAKE_BUILD_TYPE` (eg. `-DCMAKE_BUILD_TYPE=Debug` for debug mode) if using this build option; on Windows platforms you can build with visual studio solutions, e.g. `Visual Studio 15 2017`.
 
 The compiled executable is called `2` (bad naming I know), but you can change it to whatever you want in the `CMakeLists.txt` file.
