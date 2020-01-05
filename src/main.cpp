@@ -60,7 +60,7 @@ static void processInput(GLFWwindow *window)
     {
         camera.moveRight((float)config["cameraSpeed"] * deltaTime);
     }
-    
+
     if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
     {
         camera.moveUp((float)config["cameraSpeed"] * deltaTime);
