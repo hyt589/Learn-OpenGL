@@ -69,4 +69,9 @@ public:
     {
         m_cameraPos -= speed * m_cameraUp;
     }
+
+    void steer(glm::vec3 steer)
+    {
+        m_cameraFront = steer;
+    }
 };

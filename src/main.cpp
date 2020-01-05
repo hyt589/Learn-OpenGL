@@ -72,6 +72,46 @@ static void processInput(GLFWwindow *window)
     }
 }
 
+static bool firstMouse = true;
+static double lastX;
+static double lastY;
+static float yaw = 0;
+static float pitch = 0;
+
+static void mouse_callback(GLFWwindow * window, double xpos, double ypos){
+
+    if(firstMouse)
+    {
+        lastX = xpos;
+        lastY = ypos;
+        firstMouse = false;
+    }
+  
+    float xoffset = xpos - lastX;
+    float yoffset = lastY - ypos; 
+    lastX = xpos;
+    lastY = ypos;
+
+    float sensitivity = 0.05;
+    xoffset *= sensitivity;
+    yoffset *= sensitivity;
+
+    yaw   += xoffset;
+    pitch += yoffset;
+
+    if(pitch > 89.0f)
+        pitch = 89.0f;
+    if(pitch < -89.0f)
+        pitch = -89.0f;
+
+    glm::vec3 direction;
+    direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+    direction.y = sin(glm::radians(pitch));
+    direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+    camera.steer(glm::normalize(direction));
+
+}
+
 int main(int, char **)
 {
 
@@ -104,6 +144,9 @@ int main(int, char **)
     // initialize GL viewport and set resizing callback
     glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetCursorPosCallback(window, mouse_callback);
 
     Shader vertexShader(VERTEX_SHADER_PATH, GL_VERTEX_SHADER);
     Shader fragmentShader(FRAGMENT_SHADER_PATH, GL_FRAGMENT_SHADER);
@@ -212,6 +255,7 @@ int main(int, char **)
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
         processInput(window);
+        
 
         glEnable(GL_DEPTH_TEST);
         glClearColor(0.5f, 0.5f, 0.5f, 0.5f);
