@@ -12,10 +12,15 @@
 #include <glm-0.9.9.6/glm/gtc/type_ptr.hpp>
 #include <shader.hpp>
 #include <program.hpp>
+#include <camera.hpp>
 
 using JSON = nlohmann::json;
 
-// JSON config = loadConfig();
+static Camera camera(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+
+static float currentFrame = 0.0f;
+static float lastFrame = 0.0f;
+static float deltaTime = 0.0f;
 
 #define WINDOW_WIDTH config["windowWidth"]
 #define WINDOW_HEIGHT config["windowHeight"]
@@ -35,8 +40,37 @@ static void processInput(GLFWwindow *window)
     {
         glfwSetWindowShouldClose(window, true); //exit if ESC key is pressed
     }
-}
 
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+    {
+        camera.moveForward((float)config["cameraSpeed"] * deltaTime);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+    {
+        camera.moveBackward((float)config["cameraSpeed"] * deltaTime);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+    {
+        camera.moveLeft((float)config["cameraSpeed"] * deltaTime);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+    {
+        camera.moveRight((float)config["cameraSpeed"] * deltaTime);
+    }
+    
+    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+    {
+        camera.moveUp((float)config["cameraSpeed"] * deltaTime);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
+    {
+        camera.moveDown((float)config["cameraSpeed"] * deltaTime);
+    }
+}
 
 int main(int, char **)
 {
@@ -74,7 +108,6 @@ int main(int, char **)
     Shader vertexShader(VERTEX_SHADER_PATH, GL_VERTEX_SHADER);
     Shader fragmentShader(FRAGMENT_SHADER_PATH, GL_FRAGMENT_SHADER);
     Program program(vertexShader.ID(), fragmentShader.ID());
-    
 
     // float vertices[] = {
     //     // positions          // colors           // texture coords
@@ -127,8 +160,6 @@ int main(int, char **)
         -0.5f, 0.5f, 0.5f, 0.0f, 0.0f,
         -0.5f, 0.5f, -0.5f, 0.0f, 1.0f};
 
-    
-
     unsigned int indices[] = {
         // note that we start from 0!
         0, 1, 3, // first triangle
@@ -177,6 +208,9 @@ int main(int, char **)
     //render loop
     while (!glfwWindowShouldClose(window))
     {
+        currentFrame = glfwGetTime();
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
         processInput(window);
 
         glEnable(GL_DEPTH_TEST);
@@ -184,7 +218,8 @@ int main(int, char **)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glm::mat4 model = glm::rotate(glm::mat4(1.0f), (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
-        glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -2.0f));
+        // glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -2.0f));
+        glm::mat4 view = camera.lookAt();
         glm::mat4 projection = glm::perspective(glm::radians((float)config["fov"]), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 100.0f);
 
         program.setUniformMat4("model", model);
