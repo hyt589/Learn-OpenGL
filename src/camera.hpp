@@ -1,4 +1,4 @@
-#include <GL/gl.h>
+#include <glad/glad.h>
 #include <glm-0.9.9.6/glm/glm.hpp>
 #include <glm-0.9.9.6/glm/gtc/matrix_transform.hpp>
 #include <glm-0.9.9.6/glm/gtc/type_ptr.hpp>
