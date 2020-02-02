@@ -280,6 +280,7 @@ int main(int, char **)
         glm::mat4 model = glm::rotate(glm::mat4(1.0f), (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
         glm::mat4 view = Camera::theCamera.lookAt();
         glm::mat4 projection = glm::perspective(glm::radians((float)config["fov"]), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 100.0f);
+        glm::mat4 normalModel = glm::transpose(glm::inverse(model));
 
         program.Use();
         program.setUniformMat4("model", model);
@@ -288,6 +289,7 @@ int main(int, char **)
         program.setUniformVec3("objectColor", glm::vec3(1.0f, 0.5f, 0.31f));
         program.setUniformVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
         program.setUniformVec3("lightPos", lightPos);
+        program.setUniformMat4("normalModel", normalModel);
 
         glBindVertexArray(vao);
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
