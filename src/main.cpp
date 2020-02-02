@@ -285,11 +285,12 @@ int main(int, char **)
         program.Use();
         program.setUniformMat4("model", model);
         program.setUniformMat4("view", view);
+        program.setUniformMat4("normalModel", normalModel);
         program.setUniformMat4("projection", projection);
         program.setUniformVec3("objectColor", glm::vec3(1.0f, 0.5f, 0.31f));
         program.setUniformVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
         program.setUniformVec3("lightPos", lightPos);
-        program.setUniformMat4("normalModel", normalModel);
+        program.setUniformVec3("camPos", Camera::theCamera.getPos());
 
         glBindVertexArray(vao);
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -315,7 +316,7 @@ int main(int, char **)
         lsProgram.setUniformMat4("model", model);
         lsProgram.setUniformMat4("view", view);
         lsProgram.setUniformMat4("projection", projection);
-        // glBindVertexArray(lightVao);
+        glBindVertexArray(lightVao);
         glDrawArrays(GL_TRIANGLES, 0, 36);
         glfwSwapBuffers(window);
         glfwPollEvents();

@@ -126,4 +126,8 @@ public:
     static void mouse_callback_wrapper(GLFWwindow *window, double xpos, double ypos){
         theCamera.mouse_callback(window, xpos, ypos);
     }
+
+    glm::vec3 getPos(){
+        return m_cameraPos;
+    }
 };
