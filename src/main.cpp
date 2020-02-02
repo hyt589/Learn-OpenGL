@@ -16,7 +16,9 @@
 
 using JSON = nlohmann::json;
 
-static Camera camera(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+Camera Camera::theCamera = Camera(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+
+
 
 static float currentFrame = 0.0f;
 static float lastFrame = 0.0f;
@@ -43,74 +45,35 @@ static void processInput(GLFWwindow *window)
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
     {
-        camera.moveForward((float)config["cameraSpeed"] * deltaTime);
+        Camera::theCamera.moveForward((float)config["cameraSpeed"] * deltaTime);
     }
 
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
     {
-        camera.moveBackward((float)config["cameraSpeed"] * deltaTime);
+        Camera::theCamera.moveBackward((float)config["cameraSpeed"] * deltaTime);
     }
 
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
     {
-        camera.moveLeft((float)config["cameraSpeed"] * deltaTime);
+        Camera::theCamera.moveLeft((float)config["cameraSpeed"] * deltaTime);
     }
 
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
     {
-        camera.moveRight((float)config["cameraSpeed"] * deltaTime);
+        Camera::theCamera.moveRight((float)config["cameraSpeed"] * deltaTime);
     }
 
     if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
     {
-        camera.moveUp((float)config["cameraSpeed"] * deltaTime);
+        Camera::theCamera.moveUp((float)config["cameraSpeed"] * deltaTime);
     }
 
     if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
     {
-        camera.moveDown((float)config["cameraSpeed"] * deltaTime);
+        Camera::theCamera.moveDown((float)config["cameraSpeed"] * deltaTime);
     }
 }
 
-static bool firstMouse = true;
-static double lastX;
-static double lastY;
-static float yaw = -90;
-static float pitch = 0;
-
-static void mouse_callback(GLFWwindow * window, double xpos, double ypos){
-
-    if(firstMouse)
-    {
-        lastX = xpos;
-        lastY = ypos;
-        firstMouse = false;
-    }
-  
-    float xoffset = xpos - lastX;
-    float yoffset = lastY - ypos; 
-    lastX = xpos;
-    lastY = ypos;
-
-    float sensitivity = 0.05;
-    xoffset *= sensitivity;
-    yoffset *= sensitivity;
-
-    yaw   += xoffset;
-    pitch += yoffset;
-
-    if(pitch > 89.0f)
-        pitch = 89.0f;
-    if(pitch < -89.0f)
-        pitch = -89.0f;
-
-    glm::vec3 direction;
-    direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-    direction.y = sin(glm::radians(pitch));
-    direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-    camera.steer(glm::normalize(direction));
-
-}
 
 int main(int, char **)
 {
@@ -146,7 +109,7 @@ int main(int, char **)
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetCursorPosCallback(window, &Camera::mouse_callback_wrapper);
 
     Shader vertexShader(VERTEX_SHADER_PATH, GL_VERTEX_SHADER);
     Shader fragmentShader(FRAGMENT_SHADER_PATH, GL_FRAGMENT_SHADER);
@@ -263,7 +226,7 @@ int main(int, char **)
 
         glm::mat4 model = glm::rotate(glm::mat4(1.0f), (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
         // glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -2.0f));
-        glm::mat4 view = camera.lookAt();
+        glm::mat4 view = Camera::theCamera.lookAt();
         glm::mat4 projection = glm::perspective(glm::radians((float)config["fov"]), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 100.0f);
 
         program.setUniformMat4("model", model);

@@ -13,6 +13,14 @@ private:
     glm::vec3 m_cameraFront;
     glm::vec3 m_cameraRight;
 
+    bool firstMouse = true;
+    double lastX;
+    double lastY;
+    float yaw = -90;
+    float pitch = 0;
+
+    
+
     glm::vec3 Right()
     {
         return glm::normalize(glm::cross(m_cameraFront, m_cameraUp));
@@ -24,6 +32,7 @@ private:
     }
 
 public:
+    static Camera theCamera;
     Camera(glm::vec3 pos, glm::vec3 target, glm::vec3 up)
         : m_cameraPos(pos), m_cameraTarget(target), m_cameraUp(glm::normalize(up))
     {
@@ -75,9 +84,46 @@ public:
         m_cameraFront = steer;
     }
 
-    glm::vec3 front(){
+    glm::vec3 front()
+    {
         return glm::vec3(m_cameraFront);
     }
 
-    
+    void mouse_callback(GLFWwindow *window, double xpos, double ypos)
+    {
+
+        if (firstMouse)
+        {
+            lastX = xpos;
+            lastY = ypos;
+            firstMouse = false;
+        }
+
+        float xoffset = xpos - lastX;
+        float yoffset = lastY - ypos;
+        lastX = xpos;
+        lastY = ypos;
+
+        float sensitivity = 0.05;
+        xoffset *= sensitivity;
+        yoffset *= sensitivity;
+
+        yaw += xoffset;
+        pitch += yoffset;
+
+        if (pitch > 89.0f)
+            pitch = 89.0f;
+        if (pitch < -89.0f)
+            pitch = -89.0f;
+
+        glm::vec3 direction;
+        direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+        direction.y = sin(glm::radians(pitch));
+        direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+        this->steer(glm::normalize(direction));
+    }
+
+    static void mouse_callback_wrapper(GLFWwindow *window, double xpos, double ypos){
+        theCamera.mouse_callback(window, xpos, ypos);
+    }
 };
