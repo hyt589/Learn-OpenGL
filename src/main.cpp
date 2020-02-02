@@ -263,7 +263,7 @@ int main(int, char **)
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)0);
     glEnableVertexAttribArray(0);
 
-    glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+    glm::vec3 lightPos(0.0f, 1.0f, -2.0f);
 
     //render loop
     while (!glfwWindowShouldClose(window))
@@ -294,17 +294,18 @@ int main(int, char **)
 
         glBindVertexArray(vao);
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        // for (unsigned int i = 0; i < 10; i++)
-        // {
-        //     model = glm::mat4(1.0f);
-        //     model = glm::translate(model, cubePositions[i]);
-        //     float angle = 20.0f * i + 20;
-        //     model = glm::rotate(model, glm::radians(angle) * (float)glfwGetTime(), glm::vec3(1.0f, 0.3f, 0.5f));
-        //     program.setUniformMat4("model", model);
+        for (unsigned int i = 0; i < 10; i++)
+        {
+            model = glm::mat4(1.0f);
+            model = glm::translate(model, cubePositions[i]);
+            float angle = 20.0f * i + 20;
+            model = glm::rotate(model, glm::radians(angle) * (float)glfwGetTime(), glm::vec3(1.0f, 0.3f, 0.5f));
+            normalModel = glm::transpose(glm::inverse(model));
+            program.setUniformMat4("model", model);
+            program.setUniformMat4("normalModel", normalModel);
 
-        //     glDrawArrays(GL_TRIANGLES, 0, 36);
-        // }
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
         // glBindTexture(GL_TEXTURE_2D, texture_id);
         // glDrawElements(GL_TRIANGLES, sizeof(indices), GL_UNSIGNED_INT, 0);
 
