@@ -74,4 +74,10 @@ public:
     {
         m_cameraFront = steer;
     }
+
+    glm::vec3 front(){
+        return glm::vec3(m_cameraFront);
+    }
+
+    
 };

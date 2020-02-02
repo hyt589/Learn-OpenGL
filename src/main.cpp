@@ -75,7 +75,7 @@ static void processInput(GLFWwindow *window)
 static bool firstMouse = true;
 static double lastX;
 static double lastY;
-static float yaw = 0;
+static float yaw = -90;
 static float pitch = 0;
 
 static void mouse_callback(GLFWwindow * window, double xpos, double ypos){
@@ -258,7 +258,7 @@ int main(int, char **)
         
 
         glEnable(GL_DEPTH_TEST);
-        glClearColor(0.5f, 0.5f, 0.5f, 0.5f);
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glm::mat4 model = glm::rotate(glm::mat4(1.0f), (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
