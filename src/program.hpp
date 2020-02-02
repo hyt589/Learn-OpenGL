@@ -56,6 +56,17 @@ public:
         glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, glm::value_ptr(value));
     }
 
+    void setUniformVec3(const std::string name, glm::vec3 value){
+        int uniformLoc = glGetUniformLocation(m_program_id, name.c_str());
+        if (uniformLoc == -1)
+        {
+            std::cout << "[ERROR]::UNIFORM::NOT_FOUND::" << name << '\n';
+            return;
+        }
+        glUniform3fv(uniformLoc, 1, glm::value_ptr(value));
+        
+    }
+
     unsigned int ID()
     {
         return m_program_id;

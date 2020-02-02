@@ -1,7 +1,8 @@
 {
-    "fragmentShaderPath": "resources/shaders/shader.fs",
+    "fragmentShaderPath": "resources/shaders/lightShader.fs",
     "hello": "world",
     "vertexShaderPath": "resources/shaders/shader.vs",
+    "lsFragShaderPath":"resources/shaders/lightSourceShader.fs",
     "texturePaths": [
         "resources/images/container.jpg",
         "resources/images/awesomeface.jpg"

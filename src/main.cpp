@@ -18,8 +18,6 @@ using JSON = nlohmann::json;
 
 Camera Camera::theCamera = Camera(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
-
-
 static float currentFrame = 0.0f;
 static float lastFrame = 0.0f;
 static float deltaTime = 0.0f;
@@ -29,6 +27,7 @@ static float deltaTime = 0.0f;
 #define VERTEX_SHADER_PATH config["vertexShaderPath"]
 #define FRAGMENT_SHADER_PATH config["fragmentShaderPath"]
 #define TEXTURE_PATHS config["texturePaths"]
+#define LIGHT_SOURCE_SHADER_PATH config["lsFragShaderPath"]
 
 //resize GL viewport if the window is resized
 static void framebuffer_size_callback(GLFWwindow *window, int width, int height)
@@ -74,7 +73,6 @@ static void processInput(GLFWwindow *window)
     }
 }
 
-
 int main(int, char **)
 {
 
@@ -114,6 +112,10 @@ int main(int, char **)
     Shader vertexShader(VERTEX_SHADER_PATH, GL_VERTEX_SHADER);
     Shader fragmentShader(FRAGMENT_SHADER_PATH, GL_FRAGMENT_SHADER);
     Program program(vertexShader.ID(), fragmentShader.ID());
+
+    Shader lightSourceVertexShader(VERTEX_SHADER_PATH, GL_VERTEX_SHADER);
+    Shader lightSourceFragShader(LIGHT_SOURCE_SHADER_PATH, GL_FRAGMENT_SHADER);
+    Program lsProgram(lightSourceVertexShader.ID(), lightSourceFragShader.ID());
 
     // float vertices[] = {
     //     // positions          // colors           // texture coords
@@ -210,7 +212,15 @@ int main(int, char **)
         glm::vec3(1.5f, 0.2f, -1.5f),
         glm::vec3(-1.3f, 1.0f, -1.5f)};
 
-    // std::cout << typeid(config["texturePaths"]).name() << std::endl;
+    unsigned int lightVao;
+    glGenVertexArrays(1, &lightVao);
+    glBindVertexArray(lightVao);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0);
+    glEnableVertexAttribArray(0);
+
+    glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+
     //render loop
     while (!glfwWindowShouldClose(window))
     {
@@ -218,39 +228,48 @@ int main(int, char **)
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
         processInput(window);
-        
 
         glEnable(GL_DEPTH_TEST);
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glm::mat4 model = glm::rotate(glm::mat4(1.0f), (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
-        // glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -2.0f));
         glm::mat4 view = Camera::theCamera.lookAt();
         glm::mat4 projection = glm::perspective(glm::radians((float)config["fov"]), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 100.0f);
 
+        program.Use();
         program.setUniformMat4("model", model);
         program.setUniformMat4("view", view);
         program.setUniformMat4("projection", projection);
+        program.setUniformVec3("objectColor", glm::vec3(1.0f, 0.5f, 0.31f));
+        program.setUniformVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
 
-        program.Use();
-        // glUniform4f(u_color, r, g, b, 1.0f);
         glBindVertexArray(vao);
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        for (unsigned int i = 0; i < 10; i++)
-        {
-            model = glm::mat4(1.0f);
-            model = glm::translate(model, cubePositions[i]);
-            float angle = 20.0f * i + 20;
-            model = glm::rotate(model, glm::radians(angle) * (float)glfwGetTime(), glm::vec3(1.0f, 0.3f, 0.5f));
-            program.setUniformMat4("model", model);
+        // for (unsigned int i = 0; i < 10; i++)
+        // {
+        //     model = glm::mat4(1.0f);
+        //     model = glm::translate(model, cubePositions[i]);
+        //     float angle = 20.0f * i + 20;
+        //     model = glm::rotate(model, glm::radians(angle) * (float)glfwGetTime(), glm::vec3(1.0f, 0.3f, 0.5f));
+        //     program.setUniformMat4("model", model);
 
-            glDrawArrays(GL_TRIANGLES, 0, 36);
-        }
-        // glDrawArrays(GL_TRIANGLES, 0, 36);
+        //     glDrawArrays(GL_TRIANGLES, 0, 36);
+        // }
+        glDrawArrays(GL_TRIANGLES, 0, 36);
         // glBindTexture(GL_TEXTURE_2D, texture_id);
         // glDrawElements(GL_TRIANGLES, sizeof(indices), GL_UNSIGNED_INT, 0);
 
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, lightPos);
+        model = glm::scale(model, glm::vec3(0.2f));
+        // program.setUniformMat4("model", model);
+        lsProgram.Use();
+        lsProgram.setUniformMat4("model", model);
+        lsProgram.setUniformMat4("view", view);
+        lsProgram.setUniformMat4("projection", projection);
+        // glBindVertexArray(lightVao);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
