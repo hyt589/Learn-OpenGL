@@ -288,9 +288,15 @@ int main(int, char **)
         program.setUniformMat4("normalModel", normalModel);
         program.setUniformMat4("projection", projection);
         program.setUniformVec3("objectColor", glm::vec3(1.0f, 0.5f, 0.31f));
-        program.setUniformVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
-        program.setUniformVec3("lightPos", lightPos);
+        program.setUniformVec3("light.ambient", glm::vec3(0.2f));
+        program.setUniformVec3("light.specular", glm::vec3(1.0f));
+        program.setUniformVec3("light.diffuse", glm::vec3(0.8f));
+        program.setUniformVec3("light.position", lightPos);
         program.setUniformVec3("camPos", Camera::theCamera.getPos());
+        program.setUniformVec3("material.ambient", glm::vec3(1.0f, 0.5f, 0.31f));
+        program.setUniformVec3("material.diffuse", glm::vec3(1.0f, 0.5f, 0.31f));
+        program.setUniformVec3("material.specular", glm::vec3(1.0f, 1.0f, 1.0f));
+        program.setUniformFloat("material.shininess", 32.0f);
 
         glBindVertexArray(vao);
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);

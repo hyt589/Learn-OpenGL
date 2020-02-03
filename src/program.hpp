@@ -67,6 +67,16 @@ public:
         
     }
 
+    void setUniformFloat(const std::string name, float value){
+        int uniformLoc = glGetUniformLocation(m_program_id, name.c_str());
+        if (uniformLoc == -1)
+        {
+            std::cout << "[ERROR]::UNIFORM::NOT_FOUND::" << name << '\n';
+            return;
+        }
+        glUniform1f(uniformLoc, value);
+    }
+
     unsigned int ID()
     {
         return m_program_id;
