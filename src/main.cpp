@@ -80,6 +80,7 @@ int main(int, char **)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_SAMPLES, 16);
 
 #ifdef __MACH__ //Run following if on Mac OS
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
@@ -262,8 +263,6 @@ int main(int, char **)
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)0);
     glEnableVertexAttribArray(0);
 
-    glm::vec3 lightPos(0.0f, 1.0f, -2.0f);
-
     //render loop
     while (!glfwWindowShouldClose(window))
     {
@@ -273,6 +272,7 @@ int main(int, char **)
         processInput(window);
 
         glEnable(GL_DEPTH_TEST);
+        glEnable(GL_MULTISAMPLE);
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -280,13 +280,13 @@ int main(int, char **)
         glm::mat4 view = Camera::theCamera.lookAt();
         glm::mat4 projection = glm::perspective(glm::radians((float)config["fov"]), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 100.0f);
         glm::mat4 normalModel = glm::transpose(glm::inverse(model));
-
+        glm::vec3 lightPos(0.0f, 1.0f, -2.0f);
         glm::vec3 lightColor;
-        lightColor.x = sin(glfwGetTime() * 2.0f);
-        lightColor.y = sin(glfwGetTime() * 1.3f);
-        lightColor.z = cos(glfwGetTime() * 1.6f);
+        lightColor.x = (sin(glfwGetTime() * 2.0f) + 1.0f)/2;
+        lightColor.y = (sin(glfwGetTime() * 1.3f) + 1.0f)/2;
+        lightColor.z = (cos(glfwGetTime() * 1.6f) + 1.0f)/2;
 
-        lightColor = glm::vec3(1.0);
+        // lightColor = glm::vec3(1.0);
 
         program.Use();
         program.setUniformMat4("model", model);
@@ -299,12 +299,12 @@ int main(int, char **)
         program.setUniformVec3("light.diffuse", glm::vec3(0.8f) * lightColor);
         program.setUniformVec3("light.position", lightPos);
         program.setUniformVec3("camPos", Camera::theCamera.getPos());
-        // program.setUniformVec3("material.ambient", glm::vec3(0.05375f, 0.05, 0.06625f));
-        // program.setUniformVec3("material.diffuse", glm::vec3(0.18275f, 0.17f, 0.22525f));
-        // program.setUniformVec3("material.specular", glm::vec3(0.332741f, 0.328634f, 0.346435f));
         program.setUniformVec3("material.ambient", glm::vec3(0.05375f, 0.05, 0.06625f));
         program.setUniformVec3("material.diffuse", glm::vec3(0.18275f, 0.17f, 0.22525f));
         program.setUniformVec3("material.specular", glm::vec3(0.332741f, 0.328634f, 0.346435f));
+        // program.setUniformVec3("material.ambient", glm::vec3((sin(glfwGetTime() * 2.0f) + 1.0f)/2, (sin(glfwGetTime() * 1.3f) + 1.0f)/2, (cos(glfwGetTime() * 1.6f) + 1.0f)/2));
+        // program.setUniformVec3("material.diffuse", glm::vec3((sin(glfwGetTime() * 2.0f) + 1.0f)/2, (sin(glfwGetTime() * 1.3f) + 1.0f)/2, (cos(glfwGetTime() * 1.6f) + 1.0f)/2));
+        // program.setUniformVec3("material.specular", glm::vec3(0.332741f, 0.328634f, 0.346435f));
         program.setUniformFloat("material.shininess", 32.0f);
 
         glBindVertexArray(vao);
